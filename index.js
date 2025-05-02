@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const port = process.env.PORT || 5000;
 const app = express();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 //middleware
 
@@ -29,12 +29,103 @@ async function run() {
     await client.connect();
     //start
 
-    const AllProducts = client.db("e_commarce").collection("allproduct");
+    const AllProducts = client.db("e_commarce").collection("products");
+    const FavoriteCollection = client.db("e_commarce").collection("favorite");
+    const AddOrderCard=client.db ("e_commarce").collection("AddToCard");
+    const OrderCollection =client.db("e_commarce").collection("Order");
+    const UserCollection =client.db("e_commarce").collection("Users");
 
+
+
+    // users post
+
+    app.post("/users",async(req,res)=>{
+      const userData=req.body
+      const result=await UserCollection.insertOne(userData)
+      res.send(result)
+    })
+
+    app.get("users",async(req,res)=>{
+      const result=await UserCollection.find().toArray()
+      res.send(result)
+    })
+
+  //products get 
     app.get("/products",async(req,res)=>{
         const result=await AllProducts.find().toArray()
         res.send(result)
     })
+
+    app.get("/products/:id",async(req,res)=>{
+      const id=req.params.id
+      console.log(id)
+      const query={_id: new ObjectId(id)}
+      const result=await AllProducts.findOne(query)
+      res.send(result)
+    })
+
+
+// product add to favorite list
+
+app.post("/favorite",async(req,res)=>{
+  const data=req.body
+  const result=await FavoriteCollection.insertOne(data)
+  res.send(result)
+})
+
+app.get("/favorite",async(req,res)=>{
+  const result=await FavoriteCollection.find().toArray()
+  res.send(result)
+})
+
+app.delete("/favorite/delete/:id",async(req,res)=>{
+  const id=req.params.id
+  console.log("tanvir",id)
+  const query={_id:id}
+  const result=await FavoriteCollection.deleteOne(query)
+  res.send(result)
+})
+
+
+
+
+
+
+
+//add to card
+app.post("/addToCard",async(req,res)=>{
+  const data=req.body
+  const result=await AddOrderCard.insertOne(data)
+  res.send(result)
+})
+
+app.get("/addToCard",async(req,res)=>{
+  const result=await AddOrderCard.find().toArray()
+  res.send(result)
+})
+
+app.delete("/addToCard/delete/:id",async(req,res)=>{
+  const id=req.params.id
+  console.log(id)
+  const query={_id:new ObjectId(id)}
+  const result=await AddOrderCard.deleteOne(query)
+  res.send(result)
+})
+
+app.post("/order",async(req ,res)=>{
+  const data=req.body
+  const productId=data.items.map(v=> new ObjectId (v.productId))
+  console.log(productId)
+  const DeleteProductId=await AddOrderCard.deleteMany({
+    _id:{$in:productId}
+  });
+  const result=await OrderCollection.insertOne(data)
+  res.send({
+    success: true,
+    result,
+    DeleteProductId
+  });
+})
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -55,3 +146,5 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`the CRUD Operation is running port ${port} `);
 });
+
+
