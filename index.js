@@ -41,6 +41,13 @@ async function run() {
 
     app.post("/users",async(req,res)=>{
       const userData=req.body
+      console.log(userData)
+      const email=userData.Email
+      const query={Email:email}
+      const find=await UserCollection.findOne(query)
+      if(find){
+       return res.send({message:"user already Register"})
+      }
       const result=await UserCollection.insertOne(userData)
       res.send(result)
     })
