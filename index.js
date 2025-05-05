@@ -10,7 +10,6 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 app.use(express.json());
 app.use(cors());
 
-//const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.0p516.mongodb.net/?appName=Cluster0`;
 //const uri = `mongodb+srv://e-commarce:${process.env.DB_PASS}@cluster0.0p516.mongodb.net/?appName=Cluster0`;
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.0p516.mongodb.net/?appName=Cluster0`;
 
@@ -59,8 +58,42 @@ async function run() {
 
   //products get 
     app.get("/products",async(req,res)=>{
-        const result=await AllProducts.find().toArray()
+      const sort=req.query?.sort
+      const search=req.query?.search
+      console.log(sort,search)
+      let sortQuery={}
+      let searchQuery = {};
+
+      if(search){
+        searchQuery = { title: { $regex: search, $options: 'i' } };
+      }
+      if(sort==="true"){
+        sortQuery = { price: -1 }
+      }
+        const result=await AllProducts.find(searchQuery ).sort(sortQuery).toArray()
         res.send(result)
+    })
+
+
+    
+
+    app.post("/products",async(req,res)=>{
+      const data=req.body
+      const result=await AllProducts.insertOne(data)
+
+      res.send(result)
+    })
+
+    app.patch("/update/product/:id", async (req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: data,
+      };
+      const result = await AllProducts.updateOne(filter, updateDoc);
+      res.send(result)
+      
     })
 
     app.get("/products/:id",async(req,res)=>{
@@ -71,6 +104,19 @@ async function run() {
       res.send(result)
     })
 
+app.delete("/products/delete/:id",async(req,res)=>{
+  const id=req.params.id
+  const query={_id: new ObjectId(id)}
+  const result=await AllProducts.deleteOne(query)
+  res.send(result)
+})
+
+// get admin all order 
+
+app.get("/user/admin/order",async(req,res)=>{
+  const result=await OrderCollection.find().toArray()
+  res.send(result)
+})
 
 // product add to favorite list
 
@@ -122,7 +168,6 @@ app.delete("/addToCard/delete/:id",async(req,res)=>{
 app.post("/order",async(req ,res)=>{
   const data=req.body
   const productId=data.items.map(v=> new ObjectId (v.productId))
-  console.log(productId)
   const DeleteProductId=await AddOrderCard.deleteMany({
     _id:{$in:productId}
   });
