@@ -64,9 +64,10 @@ async function run() {
     const sort = req.query?.sort;
     const search = req.query?.search;
     const min = parseInt(req.query?.min) || 0;
-    const max = parseInt(req.query?.max) || 1000;
+    const max = parseInt(req.query?.max) || 5000;
+    const ass=req.query?.ass;
   
-    console.log(min, max);
+    console.log(ass);
     let sortQuery = {};
     let searchQuery = {
       price: { $gte: min, $lte: max },
@@ -81,6 +82,9 @@ async function run() {
   
     if (sort === "true") {
       sortQuery = { price: -1 };
+    }
+    else if(ass === "true"){
+      sortQuery = { price: 1 };
     }
   
     const result = await AllProducts.find(searchQuery).sort(sortQuery).toArray();
