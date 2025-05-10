@@ -56,23 +56,37 @@ async function run() {
       res.send(result)
     })
 
-  //products get 
-    app.get("/products",async(req,res)=>{
-      const sort=req.query?.sort
-      const search=req.query?.search
-      console.log(sort,search)
-      let sortQuery={}
-      let searchQuery = {};
+    
+ 
 
-      if(search){
-        searchQuery = { title: { $regex: search, $options: 'i' } };
-      }
-      if(sort==="true"){
-        sortQuery = { price: -1 }
-      }
-        const result=await AllProducts.find(searchQuery ).sort(sortQuery).toArray()
-        res.send(result)
-    })
+  //products get 
+  app.get("/products", async (req, res) => {
+    const sort = req.query?.sort;
+    const search = req.query?.search;
+    const min = parseInt(req.query?.min) || 0;
+    const max = parseInt(req.query?.max) || 1000;
+  
+    console.log(min, max);
+    let sortQuery = {};
+    let searchQuery = {
+      price: { $gte: min, $lte: max },
+    };
+  
+    if (search) {
+      searchQuery = {
+        ...searchQuery,
+        title: { $regex: search, $options: "i" },
+      };
+    }
+  
+    if (sort === "true") {
+      sortQuery = { price: -1 };
+    }
+  
+    const result = await AllProducts.find(searchQuery).sort(sortQuery).toArray();
+    res.send(result);
+  });
+  
 
 
     
