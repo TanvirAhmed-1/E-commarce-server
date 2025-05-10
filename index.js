@@ -51,9 +51,27 @@ async function run() {
       res.send(result)
     })
 
-    app.get("users",async(req,res)=>{
+    app.get("/users",async(req,res)=>{
       const result=await UserCollection.find().toArray()
       res.send(result)
+    })
+
+    app.patch("/users/:id",async(req,res)=>{
+      const id=req.params.id
+      const data=req.body
+      const filter={_id: new ObjectId(id)}
+      const updateDoc={
+        $set:data
+      }
+      const result=await UserCollection.updateOne(filter,updateDoc)
+      res.send(result)
+    })
+
+    app.delete("/users/:id",async(req,res)=>{
+      const id=req.params.id;
+      const query={_id: new ObjectId(id)}
+      const result=await UserCollection.deleteOne(query)
+    res.send(result)
     })
 
     
@@ -134,6 +152,24 @@ app.delete("/products/delete/:id",async(req,res)=>{
 app.get("/user/admin/order",async(req,res)=>{
   const result=await OrderCollection.find().toArray()
   res.send(result)
+})
+
+app.delete("/user/admin/order/:id",async(req,res)=>{
+const id=req.params.id
+const query={_id: new ObjectId(id)}
+const result=await OrderCollection.deleteOne(query)
+res.send(result)
+})
+
+app.patch("/user/admin/order/:id",async(req,res)=>{
+const id=req.params.id
+const data=req.body
+const filter={_id: new ObjectId(id)}
+const updateDoc={
+  $set:data
+}
+const result=await OrderCollection.updateOne(filter,updateDoc)
+res.send(result)
 })
 
 // product add to favorite list
