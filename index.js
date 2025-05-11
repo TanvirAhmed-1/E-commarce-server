@@ -194,11 +194,6 @@ app.delete("/favorite/delete/:id",async(req,res)=>{
 })
 
 
-
-
-
-
-
 //add to card
 app.post("/addToCard",async(req,res)=>{
   const data=req.body
@@ -231,6 +226,18 @@ app.post("/order",async(req ,res)=>{
     result,
     DeleteProductId
   });
+})
+
+
+// admin home state
+
+app.get("/admin/home",async(req,res)=>{
+  const totalProducts=await AllProducts.countDocuments(); 
+  const totalUsers=await UserCollection.countDocuments();
+  res.send({
+    allProducts:totalProducts,
+    allUsers:totalUsers
+  }) 
 })
 
     // Send a ping to confirm a successful connection
