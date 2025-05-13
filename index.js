@@ -78,36 +78,42 @@ async function run() {
  
 
   //products get 
-  app.get("/products", async (req, res) => {
-    const sort = req.query?.sort;
-    const search = req.query?.search;
-    const min = parseInt(req.query?.min) || 0;
-    const max = parseInt(req.query?.max) || 5000;
-    const ass=req.query?.ass;
-  
-    console.log(ass);
-    let sortQuery = {};
-    let searchQuery = {
-      price: { $gte: min, $lte: max },
-    };
-  
-    if (search) {
-      searchQuery = {
-        ...searchQuery,
-        title: { $regex: search, $options: "i" },
-      };
-    }
-  
-    if (sort === "true") {
-      sortQuery = { price: -1 };
-    }
-    else if(ass === "true"){
-      sortQuery = { price: 1 };
-    }
-  
+ app.get("/products", async (req, res) => {
+  const sort = req.query?.sort;
+  const search = req.query?.search;
+  const ass = req.query?.ass;
+  const min = parseInt(req.query?.min) || 0;
+  const max = parseInt(req.query?.max) || 5000;
+
+  let sortQuery = {};
+  let searchQuery = {};
+
+  // If price range is provided
+  if (req.query.min || req.query.max) {
+    searchQuery.price = { $gte: min, $lte: max };
+  }
+
+  // If search is provided
+  if (search) {
+    searchQuery.title = { $regex: search, $options: "i" };
+  }
+
+  // Sort by price descending or ascending
+  if (sort === "true") {
+    sortQuery = { price: -1 };
+  } else if (ass === "true") {
+    sortQuery = { price: 1 };
+  }
+
+  try {
     const result = await AllProducts.find(searchQuery).sort(sortQuery).toArray();
     res.send(result);
-  });
+  } catch (err) {
+    console.error("Error fetching products:", err);
+    res.status(500).send({ error: "Failed to fetch products" });
+  }
+});
+
   
 
 
