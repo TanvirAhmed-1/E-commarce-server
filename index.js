@@ -186,8 +186,8 @@ app.post("/favorite",async(req,res)=>{
   res.send(result)
 })
 
-app.get("/favorite",async(req,res)=>{
-  const email=req.query.email
+app.get("/favorite/:email",async(req,res)=>{
+  const email=req.params.email
   const UserFind={email:email}
   const result=await FavoriteCollection.find(UserFind).toArray()
   res.send(result)
@@ -209,8 +209,8 @@ app.post("/addToCard",async(req,res)=>{
   res.send(result)
 })
 
-app.get("/addToCard",async(req,res)=>{
-  const email = req.query.email;
+app.get("/addToCard/:email",async(req,res)=>{
+  const email = req.params.email;
   const FindUser={email:email}
   const result=await AddOrderCard.find(FindUser).toArray()
   res.send(result)
