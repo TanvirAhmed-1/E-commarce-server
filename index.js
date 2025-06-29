@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     //start
 
     const AllProducts = client.db("e_commarce").collection("products");
@@ -187,7 +187,9 @@ app.post("/favorite",async(req,res)=>{
 })
 
 app.get("/favorite",async(req,res)=>{
-  const result=await FavoriteCollection.find().toArray()
+  const email=req.query.email
+  const UserFind={email:email}
+  const result=await FavoriteCollection.find(UserFind).toArray()
   res.send(result)
 })
 
@@ -200,7 +202,7 @@ app.delete("/favorite/delete/:id",async(req,res)=>{
 })
 
 
-//add to card
+//user add to card section
 app.post("/addToCard",async(req,res)=>{
   const data=req.body
   const result=await AddOrderCard.insertOne(data)
@@ -208,7 +210,9 @@ app.post("/addToCard",async(req,res)=>{
 })
 
 app.get("/addToCard",async(req,res)=>{
-  const result=await AddOrderCard.find().toArray()
+  const email = req.query.email;
+  const FindUser={email:email}
+  const result=await AddOrderCard.find(FindUser).toArray()
   res.send(result)
 })
 
@@ -247,10 +251,10 @@ app.get("/admin/home",async(req,res)=>{
 })
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
