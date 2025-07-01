@@ -153,6 +153,29 @@ app.delete("/products/delete/:id",async(req,res)=>{
   res.send(result)
 })
 
+//user order
+
+app.post("/order",async(req ,res)=>{
+  const data=req.body
+  const productId=data.items.map(v=> new ObjectId (v.productId))
+  const DeleteProductId=await AddOrderCard.deleteMany({
+    _id:{$in:productId}
+  });
+  const result=await OrderCollection.insertOne(data)
+  res.send({
+    success: true,
+    result,
+    DeleteProductId
+  });
+})
+
+app.get("/order/:email",async(req,res)=>{
+  const email=req.params.email
+  const find={userEmail:email}
+  const result=await OrderCollection.find(find).toArray()
+  res.send(result)
+})
+
 // get admin all order 
 
 app.get("/user/admin/order",async(req,res)=>{
