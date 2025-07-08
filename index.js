@@ -218,8 +218,7 @@ app.get("/favorite/:email",async(req,res)=>{
 
 app.delete("/favorite/delete/:id",async(req,res)=>{
   const id=req.params.id
-  console.log("tanvir",id)
-  const query={_id:id}
+  const query={_id: new ObjectId(id)}
   const result=await FavoriteCollection.deleteOne(query)
   res.send(result)
 })
